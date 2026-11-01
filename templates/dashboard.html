@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Hello, {{ user.full_name.split(' ')[0] }}</h1><p class="sub">Staff ID {{ user.staff_id }}</p></div>
+</div>
+{% if msg %}<div class="notice">{{ msg }}</div>{% endif %}
+
+<section class="card punch">
+  <div>
+    <div class="clock-big" id="clock">--:--</div>
+    <p class="sub" id="date"></p>
+    <p style="margin:16px 0 0">
+      {% if not rec %}<span class="pill">Not signed in</span>
+      {% elif not rec.check_out %}<span class="pill blue">Signed in</span>
+      {% else %}<span class="pill black">Day complete</span>{% endif %}
+    </p>
+  </div>
+  <div>
+    <div class="times">
+      <div class="time-box"><div class="l">Arrived</div><div class="v">{{ rec.check_in if rec and rec.check_in else "--:--" }}</div></div>
+      <div class="time-box"><div class="l">Left</div><div class="v">{{ rec.check_out if rec and rec.check_out else "--:--" }}</div></div>
+    </div>
+    {% if not rec %}
+    <form method="post" action="/checkin"><button class="btn btn-block btn-lg">Sign in</button></form>
+    {% elif not rec.check_out %}
+    <form method="post" action="/checkout"><button class="btn btn-dark btn-block btn-lg">Sign out</button></form>
+    {% else %}
+    <p class="sub">You have completed today's attendance. See you tomorrow.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Last 14 days</h2></div>
+  <div class="table-wrap">
+  <table class="stack">
+    <thead><tr><th>Date</th><th>Arrived</th><th>Left</th></tr></thead>
+    <tbody>
+    {% for h in history %}<tr>
+      <td class="name" data-label="Date">{{ h.work_date }}</td>
+      <td data-label="Arrived">{{ h.check_in or "-" }}</td>
+      <td data-label="Left">{{ h.check_out or "-" }}</td>
+    </tr>
+    {% else %}<tr><td colspan="3" class="empty">No attendance recorded yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<script>
+function tick(){
+  var n = new Date();
+  document.getElementById('clock').textContent = n.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('date').textContent = n.toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+}
+tick(); setInterval(tick, 1000);
+</script>
+{% endblock %}

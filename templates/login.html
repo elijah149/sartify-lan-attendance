@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block shell %}
+<div class="auth">
+  <section class="auth-art">
+    <div class="kicker">Sartify Attendance</div>
+    <div>
+      <div class="clock" id="clock">--:--</div>
+      <div class="date" id="date"></div>
+      <div class="minute"><i id="sec"></i></div>
+    </div>
+    <p>Record your arrival and departure from the office network, and keep every working day on record.</p>
+  </section>
+  <section class="auth-form">
+    <div class="auth-card">
+      <img class="logo-lg" src="/static/logo.png" alt="Sartify">
+      <h1>Welcome back</h1>
+      <p class="sub">Log in with the account your administrator created for you.</p>
+      {% if error %}<div class="error">{{ error }}</div>{% endif %}
+      <form method="post" action="/login">
+        <div class="field"><label for="u">Username</label>
+        <input id="u" name="username" required autofocus autocomplete="username"></div>
+        <div class="field"><label for="p">Password</label>
+        <input id="p" type="password" name="password" required autocomplete="current-password"></div>
+        <button class="btn btn-block" style="margin-top:8px">Log in</button>
+      </form>
+    </div>
+  </section>
+</div>
+<script>
+function tick(){
+  var n = new Date();
+  document.getElementById('clock').textContent = n.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('date').textContent = n.toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('sec').style.width = (n.getSeconds() / 60 * 100) + '%';
+}
+tick(); setInterval(tick, 1000);
+</script>
+{% endblock %}

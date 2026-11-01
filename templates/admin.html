@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Attendance</h1>
+    <p class="sub">{{ date }}{% if weekend %}<span class="pill" style="margin-left:8px">Weekend</span>{% endif %}</p>
+  </div>
+  <form class="inline-form" method="get" action="/admin">
+    <input type="date" name="date" value="{{ date }}">
+    <button class="btn">View</button>
+  </form>
+</div>
+{% if msg %}<div class="notice">{{ msg }}</div>{% endif %}
+
+<div class="stats">
+  <div class="stat dark"><div class="n">{{ records|length }}</div><div class="l">Signed in</div></div>
+  <div class="stat"><div class="n">{{ absent|length }}</div><div class="l">Not signed in</div></div>
+  <div class="stat"><div class="n">{{ users|length }}</div><div class="l">Registered staff</div></div>
+</div>
+
+<section class="card">
+  <div class="card-head"><h2>Sign-ins</h2></div>
+  <div class="table-wrap">
+  <table class="stack">
+    <thead><tr><th>Name</th><th>Staff ID</th><th>Arrived</th><th>Left</th><th>IP address</th></tr></thead>
+    <tbody>
+    {% for r in records %}<tr>
+      <td class="name" data-label="Name">{{ r.full_name }}</td>
+      <td data-label="Staff ID">{{ r.staff_id }}</td>
+      <td data-label="Arrived">{{ r.check_in or "-" }}</td>
+      <td data-label="Left">{{ r.check_out or "-" }}</td>
+      <td data-label="IP address">{{ r.ip_in }}</td>
+    </tr>
+    {% else %}<tr><td colspan="5" class="empty">No sign-ins on this date.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+{% if absent %}
+<section class="card">
+  <div class="card-head"><h2>Not signed in</h2></div>
+  <div class="chips">{% for a in absent %}<span class="chip">{{ a.full_name }}<small>{{ a.staff_id }}</small></span>{% endfor %}</div>
+</section>
+{% endif %}
+
+<section class="card">
+  <div class="card-head"><h2>Register a user</h2></div>
+  <form method="post" action="/admin/users">
+    <div class="form-grid">
+      <div class="field"><label for="fn">Full name</label><input id="fn" name="full_name" required></div>
+      <div class="field"><label for="sid">Staff ID</label><input id="sid" name="staff_id" required></div>
+      <div class="field"><label for="un">Username</label><input id="un" name="username" required></div>
+      <div class="field"><label for="tp">Temporary password</label><input id="tp" name="password" type="password" required></div>
+    </div>
+    <div class="actions" style="margin-top:18px"><button class="btn">Register user</button></div>
+  </form>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Users</h2></div>
+  <div class="table-wrap">
+  <table class="stack">
+    <thead><tr><th>Name</th><th>Staff ID</th><th>Username</th><th>Registered</th><th>Status</th><th>Device</th><th></th></tr></thead>
+    <tbody>
+    {% for u in users %}<tr>
+      <td class="name" data-label="Name">{{ u.full_name }}</td>
+      <td data-label="Staff ID">{{ u.staff_id }}</td>
+      <td data-label="Username">{{ u.username }}</td>
+      <td data-label="Registered">{{ u.created_date or "-" }}</td>
+      <td data-label="Status">{% if u.active %}<span class="pill blue">Active</span>{% else %}<span class="pill">Disabled</span>{% endif %}</td>
+      <td data-label="Device">{% if u.device_hash %}<span class="pill black">Bound</span>{% else %}<span class="pill">Not bound</span>{% endif %}</td>
+      <td class="actions-cell"><div class="actions end">
+        <form method="post" action="/admin/users/{{ u.id }}/reset-device"><button class="btn btn-outline btn-sm">Reset device</button></form>
+        <form method="post" action="/admin/users/{{ u.id }}/toggle"><button class="btn {{ 'btn-dark' if u.active else '' }} btn-sm">{{ "Disable" if u.active else "Enable" }}</button></form>
+      </div></td>
+    </tr>
+    {% else %}<tr><td colspan="7" class="empty">No users registered yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endblock %}

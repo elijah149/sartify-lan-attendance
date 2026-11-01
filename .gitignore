@@ -1,0 +1,11 @@
+venv/
+venv.old*/
+__pycache__/
+*.pyc
+*.db
+*.db.bak
+*.bak
+.secret_key
+.env
+server.log
+nohup.out

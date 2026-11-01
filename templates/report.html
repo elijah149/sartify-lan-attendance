@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Monthly report</h1></div>
+  <form class="inline-form" method="get" action="/admin/report">
+    <input type="month" name="month" value="{{ month }}">
+    <button class="btn">View</button>
+    <a class="btn btn-outline" href="/admin/report.csv?month={{ month }}&kind=summary">Summary CSV</a>
+    <a class="btn btn-outline" href="/admin/report.csv?month={{ month }}&kind=detail">Month detail CSV</a>
+  </form>
+</div>
+
+<div class="stats">
+  <div class="stat dark"><div class="n">{{ workdays }}</div><div class="l">Workdays counted</div></div>
+  <div class="stat"><div class="n">{{ summary|length }}</div><div class="l">Active staff</div></div>
+</div>
+
+<section class="card">
+  <div class="card-head"><h2>Summary per user</h2></div>
+  <div class="table-wrap">
+  <table class="stack">
+    <thead><tr><th>Name</th><th>Staff ID</th><th>Registered</th><th>Workdays</th><th>Present</th><th>Absent</th><th>Hours</th></tr></thead>
+    <tbody>
+    {% for s in summary %}<tr>
+      <td class="name" data-label="Name">{{ s.full_name }}</td>
+      <td data-label="Staff ID">{{ s.staff_id }}</td>
+      <td data-label="Registered">{{ s.start or "-" }}</td>
+      <td data-label="Workdays">{{ s.workdays }}</td>
+      <td data-label="Present">{{ s.present }}</td>
+      <td data-label="Absent">{{ s.absent }}</td>
+      <td data-label="Hours">{{ s.hours }}</td>
+    </tr>
+    {% else %}<tr><td colspan="7" class="empty">No active staff yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h2>Daily detail</h2>
+    <form class="inline-form" method="get" action="/admin/report">
+      <input type="hidden" name="month" value="{{ month }}">
+      <input type="date" name="day" value="{{ day }}" min="{{ day_min }}" max="{{ day_max }}">
+      <button class="btn btn-sm">View day</button>
+    </form>
+  </div>
+  <div class="table-wrap">
+  <table class="stack">
+    <thead><tr><th>Name</th><th>Staff ID</th><th>Arrived</th><th>Left</th><th>Hours</th></tr></thead>
+    <tbody>
+    {% for d in day_rows %}<tr>
+      <td class="name" data-label="Name">{{ d.full_name }}</td>
+      <td data-label="Staff ID">{{ d.staff_id }}</td>
+      <td data-label="Arrived">{{ d.check_in or "-" }}</td>
+      <td data-label="Left">{{ d.check_out or "-" }}</td>
+      <td data-label="Hours">{{ d.hours if d.hours is not none else "-" }}</td>
+    </tr>
+    {% else %}<tr><td colspan="5" class="empty">No sign-ins on {{ day }}.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endblock %}
